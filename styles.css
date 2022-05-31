@@ -268,3 +268,11 @@
     margin-top: 0;
   }
 }
+
+.saki-card-img_preload {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}

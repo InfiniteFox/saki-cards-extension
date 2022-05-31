@@ -1,6 +1,7 @@
 let main = document.getElementById('full');
 const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
 const wssURL = 'ws://ec2-54-147-176-194.compute-1.amazonaws.com:3001'
+const cardDomain = 'https://d2p50m6h7lb024.cloudfront.net/saki-cards/';
 //const apiURL = 'http://localhost:3000';
 //const wssURL = 'ws://localhost:3001';
 const EXT_VERSION = '3';
@@ -297,10 +298,6 @@ document.getElementById("reset-button").addEventListener("click", () => {
   resetTable();
 });
 
-function getCSSName(name) {
-  return name.toLowerCase().replace(' ', '-') + '-img'
-}
-
 cardNameList = [
   "Aishlin Wishhart",
   "Amae Koromo",
@@ -360,18 +357,32 @@ cardNameList = [
   "Yumeno Maho"
 ];
 
+function getCardImageURL(name){
+  return cardDomain + name.replace(" ", "%20") + '.png';
+}
+
+function setCardImg(element, name) {
+  element.style.background = `url(${getCardImageURL(name)}) no-repeat`;
+  element.style.backgroundSize = '100% 100%';
+}
+
 // Preload image
 const preload = document.getElementById('preload-cards');
 cardNameList.forEach((x, i)=> {
-  preload.insertAdjacentHTML('beforeend', `<div class="d-block ${getCSSName(x)}" style="background-poisition: -9999px -9999px;"></div>`);
+  let img = document.createElement('div');
+  img.className = 'saki-card-img_preload';
+  // img.style.backgroundPoisition = '-9999px -9999px';
+  setCardImg(img, x);
+  preload.insertAdjacentElement('beforeend', img);
 });
+
 
 const newCard = (name, parent) => {
 
   let img = document.createElement('div');
 
-  img.className = 'saki-card-img'
-  img.classList.add(getCSSName(name));
+  img.className = 'saki-card-img';
+  setCardImg(img, name);
   img.alt = name;
   img.draggable = false;
 
@@ -418,15 +429,11 @@ function hideBigCard(e){
   }
 }
 
-function setCardImg(user, cardName) {
-  document.getElementById(user).className = 'played-saki-card-img';
-  document.getElementById(user).classList.add(getCSSName(cardName));
-}
 
 function addCardListeners(card) {
   card.addEventListener("mouseover",function() {
     let element = document.getElementById('big-saki-card-img');
-    element.classList.add(getCSSName(card.title));
+    setCardImg(element, card.title);
     element.style.display = 'block';
   });
   
@@ -461,12 +468,12 @@ function receiveData(session) {
 
     if (player.playedCard != null  && !hiddenCards) {
       pcard.style.display = 'block';
-      setCardImg('player-img', player.playedCard.name);
+      setCardImg(document.getElementById('player-img'), player.playedCard.name);
       pcard.title = player.playedCard.name;
       if (player.playedCard.name == "Shirouzu Mairu") {
         document.getElementById('flip-button').style.display = 'block';
         if (player.flippedOver) {
-          setCardImg('player-img', 'Tsuruta Himeko');
+          setCardImg(document.getElementById('player-img'), 'Tsuruta Himeko');
           pcard.title = 'Tsuruta Himeko';
         }
       } else {
@@ -546,14 +553,14 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         kcard.style.display = 'block';
         if (session.revealed) {
-          setCardImg('kamicha-img', thisPlayer.playedCard.name);
+          setCardImg(document.getElementById('kamicha-img'), thisPlayer.playedCard.name);
           kcard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            setCardImg('kamicha-img', 'Tsuruta Himeko');
+            setCardImg(document.getElementById('kamicha-img'), 'Tsuruta Himeko');
             kcard.title = 'Tsuruta Himeko';
           }
         } else {
-          setCardImg('kamicha-img', 'cardback');
+          setCardImg(document.getElementById('kamicha-img'), 'cardback');
           kcard.title = 'cardback';
         }
       } else {
@@ -578,14 +585,14 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         tcard.style.display = 'block';
         if (session.revealed) {
-          setCardImg('toimen-img', thisPlayer.playedCard.name);
+          setCardImg(document.getElementById('toimen-img'), thisPlayer.playedCard.name);
           tcard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            setCardImg('toimen-img', 'Tsuruta Himeko');
+            setCardImg(document.getElementById('toimen-img'), 'Tsuruta Himeko');
             tcard.title = 'Tsuruta Himeko';
           }
         } else {
-          setCardImg('toimen-img', 'cardback');
+          setCardImg(document.getElementById('toimen-img'), 'cardback');
           tcard.title = 'cardback';
         }
       } else {
@@ -610,14 +617,14 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         scard.style.display = 'block';
         if (session.revealed) {
-          setCardImg('shimocha-img', thisPlayer.playedCard.name);
+          setCardImg(document.getElementById('shimocha-img'), thisPlayer.playedCard.name);
           scard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            setCardImg('shimocha-img', 'Tsuruta Himeko');
+            setCardImg(document.getElementById('shimocha-img'), 'Tsuruta Himeko');
             scard.title = 'Tsuruta Himeko';
           }
         } else {
-          setCardImg('shimocha-img', 'cardback');
+          setCardImg(document.getElementById('shimocha-img'), 'cardback');
           scard.title = 'cardback';
         }
       } else {

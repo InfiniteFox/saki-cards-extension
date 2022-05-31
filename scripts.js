@@ -302,8 +302,6 @@ const newCard = (name, parent) => {
 
   let img = document.createElement('div');
 
-  // img.src = chrome.runtime.getURL('assets/'+name+'.png');
-  // let img = preLoadCards.find(card => card.name==name).image;
   img.className = 'saki-card-img'
   img.classList.add(getCSSName(name));
   img.alt = name;

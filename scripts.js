@@ -109,7 +109,7 @@ let html = `
   </div>
 
   <div id="big-card" style="display: none">
-    <img id="big-saki-card-img" class="saki-card-img" src="" alt="" draggable="false">
+    <div id="big-saki-card-img" class="saki-card-img" alt="" stlye="display:none ;" draggable="false"></div>
   </div>
 
   <h3 class="player-name" id="kamicha-name" style="top: 48vh; left: 29vw;"></h3>
@@ -117,17 +117,17 @@ let html = `
   <h3 class="player-name" id="shimocha-name" style="top: 48vh; right: 29vw;"></h3>
 
   <div id="player-card" class="played-card">
-    <img id="player-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
+    <div id="player-img" class="played-saki-card-img" alt="" draggable="false"></div>
     <button id="flip-button" class="btn btn-success btn-sm w-100"><b>⮏</b></button>
   </div>
   <div id="kamicha-card" class="played-card">
-    <img id="kamicha-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
+    <div id="kamicha-img" class="played-saki-card-img" alt="" draggable="false"></div>
   </div>
   <div id="toimen-card" class="played-card">
-    <img id="toimen-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
+    <div id="toimen-img" class="played-saki-card-img" alt="" draggable="false"></div>
   </div>
   <div id="shimocha-card" class="played-card">
-    <img id="shimocha-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
+    <div id="shimocha-img" class="played-saki-card-img" alt="" draggable="false"></div>
   </div>
 `;
  
@@ -151,10 +151,10 @@ for (let el of document.getElementsByName('input')) {
   });
 }
 
-addCardListeners(document.getElementById('player-card'));
-addCardListeners(document.getElementById('kamicha-card'));
-addCardListeners(document.getElementById('toimen-card'));
-addCardListeners(document.getElementById('shimocha-card'));
+addCardListeners(pcard);
+addCardListeners(kcard);
+addCardListeners(tcard);
+addCardListeners(scard);
 
 
 document.getElementById("hide-button").addEventListener("click", () => {
@@ -294,11 +294,18 @@ document.getElementById("reset-button").addEventListener("click", () => {
   resetTable();
 });
 
+function getCSSName(name) {
+  return name.toLowerCase().replace(' ', '-') + '-img'
+}
+
 const newCard = (name, parent) => {
 
-  let img = document.createElement('img');
-  img.src = chrome.runtime.getURL('assets/'+name+'.png');
-  img.className = 'saki-card-img';
+  let img = document.createElement('div');
+
+  // img.src = chrome.runtime.getURL('assets/'+name+'.png');
+  // let img = preLoadCards.find(card => card.name==name).image;
+  img.className = 'saki-card-img'
+  img.classList.add(getCSSName(name));
   img.alt = name;
   img.draggable = false;
 
@@ -345,11 +352,16 @@ function hideBigCard(e){
   }
 }
 
+function setCardImg(user, cardName) {
+  document.getElementById(user).className = 'played-saki-card-img';
+  document.getElementById(user).classList.add(getCSSName(cardName));
+}
+
 function addCardListeners(card) {
   card.addEventListener("mouseover",function() {
     let element = document.getElementById('big-saki-card-img');
+    element.classList.add(getCSSName(card.title));
     element.style.display = 'block';
-    element.src = chrome.runtime.getURL(`assets/${card.title}.png`);
   });
   
   card.addEventListener("mouseout",function() {
@@ -382,26 +394,26 @@ function receiveData(session) {
     }
 
     if (player.playedCard != null  && !hiddenCards) {
-      document.getElementById('player-card').style.display = 'block';
-      document.getElementById('player-img').src = chrome.runtime.getURL(`assets/${player.playedCard.name}.png`);
-      document.getElementById('player-card').title = player.playedCard.name;
+      pcard.style.display = 'block';
+      setCardImg('player-img', player.playedCard.name);
+      pcard.title = player.playedCard.name;
       if (player.playedCard.name == "Shirouzu Mairu") {
         document.getElementById('flip-button').style.display = 'block';
         if (player.flippedOver) {
-          document.getElementById('player-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-          document.getElementById('player-card').title = 'Tsuruta Himeko';
+          setCardImg('player-img', 'Tsuruta Himeko');
+          pcard.title = 'Tsuruta Himeko';
         }
       } else {
         document.getElementById('flip-button').style.display = 'null';
       }
       if (session.revealed) {
         document.getElementById('player-img').style.filter = null;
-        document.getElementById('player-card').title = player.playedCard.name;
+        pcard.title = player.playedCard.name;
       } else {
         document.getElementById('player-img').style.filter = 'grayscale(1)';
       }
     } else {
-      document.getElementById('player-card').style.display = 'none';
+      pcard.style.display = 'none';
     }
 
     let kamicha, toimen, shimocha;
@@ -466,96 +478,96 @@ function receiveData(session) {
       let thisPlayer = session.players.find(p => p.seat == kamicha);
       document.getElementById('kamicha-name').textContent = thisPlayer.nickname;
       if (thisPlayer.playedCard != null && !hiddenCards) {
-        document.getElementById('kamicha-card').style.display = 'block';
+        kcard.style.display = 'block';
         if (session.revealed) {
-          document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
-          document.getElementById('kamicha-card').title = thisPlayer.playedCard.name;
+          setCardImg('kamicha-img', thisPlayer.playedCard.name);
+          kcard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('kamicha-card').title = 'Tsuruta Himeko';
+            setCardImg('kamicha-img', 'Tsuruta Himeko');
+            kcard.title = 'Tsuruta Himeko';
           }
         } else {
-          document.getElementById('kamicha-img').src = chrome.runtime.getURL('assets/cardback.png');
-          document.getElementById('kamicha-card').title = 'cardback';
+          setCardImg('kamicha-img', 'cardback');
+          kcard.title = 'cardback';
         }
       } else {
-        document.getElementById('kamicha-card').style.display = 'none';
+        kcard.style.display = 'none';
       }
 
       for (let i = 0; i < thisPlayer.hand.length; i++) {
         let newcard = document.createElement('div');
         newcard.className = 'opponent-card';
-        newcard.innerHTML = `<img class="saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="Unknown card" draggable="false">`;
+        newcard.innerHTML = `<div class="saki-card-img cardback-img" alt="Unknown card" draggable="false"><div>`;
         kamichaHand.insertAdjacentElement('beforeend', newcard);
       }
     } 
     else {
       document.getElementById('kamicha-name').textContent = '';
-      document.getElementById('kamicha-card').style.display = 'none';
+      kcard.style.display = 'none';
     }
 
     if (session.players.some(p => p.seat == toimen)) {
       let thisPlayer = session.players.find(p => p.seat == toimen);
       document.getElementById('toimen-name').textContent = thisPlayer.nickname;
       if (thisPlayer.playedCard != null && !hiddenCards) {
-        document.getElementById('toimen-card').style.display = 'block';
+        tcard.style.display = 'block';
         if (session.revealed) {
-          document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
-          document.getElementById('toimen-card').title = thisPlayer.playedCard.name;
+          setCardImg('toimen-img', thisPlayer.playedCard.name);
+          tcard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('toimen-card').title = 'Tsuruta Himeko';
+            setCardImg('toimen-img', 'Tsuruta Himeko');
+            tcard.title = 'Tsuruta Himeko';
           }
         } else {
-          document.getElementById('toimen-img').src = chrome.runtime.getURL('assets/cardback.png');
-          document.getElementById('toimen-card').title = 'cardback';
+          setCardImg('toimen-img', 'cardback');
+          tcard.title = 'cardback';
         }
       } else {
-        document.getElementById('toimen-card').style.display = 'none';
+        tcard.style.display = 'none';
       }
 
       for (let i = 0; i < thisPlayer.hand.length; i++) {
         let newcard = document.createElement('div');
         newcard.className = 'opponent-card';
-        newcard.innerHTML = `<img class="saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="Unknown card" draggable="false">`;
+        newcard.innerHTML = `<div class="saki-card-img cardback-img" alt="Unknown card" draggable="false"><div>`;
         toimenHand.insertAdjacentElement('beforeend', newcard);
       }
     } 
     else {
       document.getElementById('toimen-name').textContent = '';
-      document.getElementById('toimen-card').style.display = 'none';
+      tcard.style.display = 'none';
     }
 
     if (session.players.some(p => p.seat == shimocha)) {
       let thisPlayer = session.players.find(p => p.seat == shimocha);
       document.getElementById('shimocha-name').textContent = thisPlayer.nickname;
       if (thisPlayer.playedCard != null && !hiddenCards) {
-        document.getElementById('shimocha-card').style.display = 'block';
+        scard.style.display = 'block';
         if (session.revealed) {
-          document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
-          document.getElementById('shimocha-card').title = thisPlayer.playedCard.name;
+          setCardImg('shimocha-img', thisPlayer.playedCard.name);
+          scard.title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('shimocha-card').title = 'Tsuruta Himeko';
+            setCardImg('shimocha-img', 'Tsuruta Himeko');
+            scard.title = 'Tsuruta Himeko';
           }
         } else {
-          document.getElementById('shimocha-img').src = chrome.runtime.getURL('assets/cardback.png');
-          document.getElementById('shimocha-card').title = 'cardback';
+          setCardImg('shimocha-img', 'cardback');
+          scard.title = 'cardback';
         }
       } else {
-        document.getElementById('shimocha-card').style.display = 'none';
+        scard.style.display = 'none';
       }
 
       for (let i = 0; i < thisPlayer.hand.length; i++) {
         let newcard = document.createElement('div');
         newcard.className = 'opponent-card';
-        newcard.innerHTML = `<img class="saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="Unknown card" draggable="false">`;
+        newcard.innerHTML = `<div class="saki-card-img cardback-img" alt="Unknown card" draggable="false"><div>`;
         shimochaHand.insertAdjacentElement('beforeend', newcard);
       }
     } 
     else {
       document.getElementById('shimocha-name').textContent = '';
-      document.getElementById('shimocha-card').style.display = 'none';
+      scard.style.display = 'none';
     }
 
     sessionState = session;

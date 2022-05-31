@@ -129,6 +129,9 @@ let html = `
   <div id="shimocha-card" class="played-card">
     <div id="shimocha-img" class="played-saki-card-img" alt="" draggable="false"></div>
   </div>
+
+  <div id="preload-cards">
+  </div>
 `;
  
 main.insertAdjacentHTML('beforeend', html);
@@ -297,6 +300,71 @@ document.getElementById("reset-button").addEventListener("click", () => {
 function getCSSName(name) {
   return name.toLowerCase().replace(' ', '-') + '-img'
 }
+
+cardNameList = [
+  "Aishlin Wishhart",
+  "Amae Koromo",
+  "Anetai Toyone",
+  "Arakawa Kei",
+  "Atago Hiroe",
+  "Atarashi Ako",
+  "cardback",
+  "Chloe Myeonghwa",
+  "Ezaki Hitomi",
+  "Fukuji Mihoko",
+  "Hanada Kirame",
+  "Hao Huiyu",
+  "Haramura Nodoka",
+  "Hirose Sumire",
+  "Ikeda Kana",
+  "Inoue Jun",
+  "Iwato Kasumi",
+  "Jindai Komaki",
+  "Kainou Yoshiko",
+  "Kajiki Yumi",
+  "Kakura Kurumi",
+  "Kanbara Satomi",
+  "Karijuku Tomoe",
+  "Kataoka Yuuki",
+  "Kosegawa Shiromi",
+  "Kunihiro Hajime",
+  "Mase Yuuko",
+  "Matano Seiko",
+  "Matsumi Kuro",
+  "Matsumi Yuu",
+  "Maya Yukiko",
+  "Megan Davin",
+  "Miyanaga Saki",
+  "Miyanaga Teru",
+  "Nanpo Kazue",
+  "Nelly Virsaladze",
+  "Onjouji Toki",
+  "Oohoshi Awai",
+  "Ryuumonbuchi Touka",
+  "Sagimori Arata",
+  "Senoo Kaori",
+  "Shibuya Takami",
+  "Shimizudani Ryuuka",
+  "Shirouzu Mairu",
+  "Shirouzu Mairu+Tsuruta Himeko",
+  "Someya Mako",
+  "Takakamo Shizuno",
+  "Takei Hisa",
+  "Takimi Haru",
+  "Tawamura Tomoki",
+  "Toyouko Momoko",
+  "Tsujigaito Satoha",
+  "Tsuruta Himeko",
+  "Usuzawa Sae",
+  "Usuzumi Hatsumi",
+  "Yumeno Maho"
+];
+
+// Preload image
+const preload = document.getElementById('preload-cards');
+cardNameList.forEach((x, i)=> {
+  preload.insertAdjacentHTML('beforeend', `<div class="d-block ${getCSSName(x)}" style="background-poisition: -9999px -9999px;"></div>`);
+});
 
 const newCard = (name, parent) => {
 

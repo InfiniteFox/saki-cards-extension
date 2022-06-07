@@ -7,8 +7,8 @@ const cardDomain = 'https://d2p50m6h7lb024.cloudfront.net/saki-cards';
 const EXT_VERSION = '3';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
-const version = '1.0.0';
-const language = 'chn';
+let cardVersion = '1.0.0';
+let language = 'en';
 
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
@@ -38,6 +38,7 @@ let html = `
   <div id="saki-sidebar">
     <h2>Saki Cards</h2>
     <h3 id="room-number" style="user-select: auto;"></h3>
+    <h6 id="room-card-version"></h6>
     <h6 id="room-admin"></h6>
     <div id="game-controls">
       <div class="mt-2 d-flex" style="width:100%;">
@@ -48,13 +49,6 @@ let html = `
       <button id="reset-button" class="btn btn-warning btn-sm w-100">New round</button>
       <button id="draw-button" class="btn btn-warning btn-sm w-100">Draw 1</button>
       <button id="arrange-button" class="btn btn-dark btn-sm w-100">Arrange seats</button>
-      <div>
-        <label class="form-label">Language:</label>
-        <select id="language-select" class="form-select">
-          <option value="en" selected>English</option>
-          <option value="chn">Chinese</option>
-        </select>
-      </div>
       
 
       <div class="mt-2 d-flex" style="width:100%;">
@@ -83,17 +77,27 @@ let html = `
       </p>
     </div>
     <div id="join-controls"> 
+      <div id="language-select-wrapper">
+        <label class="form-label">Card Language:</label>
+        <select id="language-select" class="dark-select form-control form-control-sm">
+          <option value="en">English</option>
+          <option value="chn">Chinese</option>
+        </select>
+      </div>
       <h3>Create Room</h2>
       <form id="create-form" autocomplete="off">
         <select id="sanma-input" class="dark-select form-control form-control-sm mt-2">
           <option value="false">Suuma</option>
           <option value="true">Sanma</option>
         </select>
+        <select id="version-input" class="dark-select form-control form-control-sm mt-2">
+          <option value="1.0.0">Ver.1.0.0</option>
+          <option value="1.0.1">Ver.1.0.1</option>
+        </select>
         <label for="admin-input">Nickname:</label>
         <input type="text" id="admin-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9]{2,24}$" required></input>
         <button id="create-button" type="button" class="btn btn-warning btn-sm w-100">CREATE</button>
       </form>
-
       <h3>Join Room</h2>
       <form id="join-form" autocomplete="off">
         <label for="session-input">Room ID:</label>
@@ -102,6 +106,8 @@ let html = `
         <input type="text" id="nickname-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9\-_]{2,24}$" required></input>
         <button id="join-button" type="button" class="btn btn-warning btn-sm w-100">JOIN</button>
       </form>
+
+
     </div>
   </div>
   
@@ -367,14 +373,11 @@ cardNameList = [
   "Yumeno Maho"
 ];
 
-const selectedLanguage = document.getElementById("language-select");
-selectedLanguage.addEventListener('change', function() {
-  language = selectedLanguage.value;
-  preloadCards();
-});
+
+const languageElement = document.getElementById("language-select");
 
 function getCardImageURL(name){
-  return cardDomain + `/${version}/${language}/${name.replace(" ", "%20")}.png`;
+  return cardDomain + `/${cardVersion}/${language}/${name.replace(" ", "%20")}.png`;
 }
 
 function setCardImg(element, name) {
@@ -384,13 +387,15 @@ function setCardImg(element, name) {
 
 // Preload image
 function preloadCards() {
+  language = languageElement.value;
+  document.getElementById("language-select-wrapper").style.display = "none";
   const preload = document.getElementById('preload-cards');
-  cardNameList.forEach((x, i)=> {
-    let img = document.createElement('div');
-    img.className = 'saki-card-img_preload';
+  cardNameList.forEach((name, i)=> {
+    let imgElement = document.createElement('div');
+    imgElement.className = 'saki-card-img_preload';
     // img.style.backgroundPoisition = '-9999px -9999px';
-    setCardImg(img, x);
-    preload.insertAdjacentElement('beforeend', img);
+    setCardImg(imgElement, name);
+    preload.insertAdjacentElement('beforeend', imgElement);
   });
 }
 
@@ -727,6 +732,7 @@ createRoom = () => {
       return;
     }
     document.getElementById('room-number').textContent = 'Room: ' + data.id;
+    document.getElementById('room-card-version').textContent = 'Card Ver.' + cardVersion;
     document.getElementById('room-admin').textContent = 'Admin: ' + data.owner;
     document.getElementById("reveal-button").style.display = 'block';
     document.getElementById("reset-button").style.display = 'block';
@@ -770,6 +776,7 @@ joinRoom = () => {
       return;
     }
     document.getElementById('room-number').textContent = 'Room: ' + data.id;
+    document.getElementById('room-card-version').textContent = 'Ver.' + cardVersion;
     document.getElementById('room-admin').textContent = 'Admin: ' + data.owner;
     document.getElementById("reveal-button").style.display = 'none';
     document.getElementById("reset-button").style.display = 'none';

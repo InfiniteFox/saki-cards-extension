@@ -1,12 +1,14 @@
 let main = document.getElementById('full');
 const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
 const wssURL = 'ws://ec2-54-147-176-194.compute-1.amazonaws.com:3001'
-const cardDomain = 'https://d2p50m6h7lb024.cloudfront.net/saki-cards/';
+const cardDomain = 'https://d2p50m6h7lb024.cloudfront.net/saki-cards';
 //const apiURL = 'http://localhost:3000';
 //const wssURL = 'ws://localhost:3001';
 const EXT_VERSION = '3';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
+const version = '1.0.0';
+const language = 'chn';
 
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
@@ -46,6 +48,14 @@ let html = `
       <button id="reset-button" class="btn btn-warning btn-sm w-100">New round</button>
       <button id="draw-button" class="btn btn-warning btn-sm w-100">Draw 1</button>
       <button id="arrange-button" class="btn btn-dark btn-sm w-100">Arrange seats</button>
+      <div>
+        <label class="form-label">Language:</label>
+        <select id="language-select" class="form-select">
+          <option value="en" selected>English</option>
+          <option value="chn">Chinese</option>
+        </select>
+      </div>
+      
 
       <div class="mt-2 d-flex" style="width:100%;">
         <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡄</h3>
@@ -357,8 +367,14 @@ cardNameList = [
   "Yumeno Maho"
 ];
 
+const selectedLanguage = document.getElementById("language-select");
+selectedLanguage.addEventListener('change', function() {
+  language = selectedLanguage.value;
+  preloadCards();
+});
+
 function getCardImageURL(name){
-  return cardDomain + name.replace(" ", "%20") + '.png';
+  return cardDomain + `/${version}/${language}/${name.replace(" ", "%20")}.png`;
 }
 
 function setCardImg(element, name) {
@@ -367,14 +383,16 @@ function setCardImg(element, name) {
 }
 
 // Preload image
-const preload = document.getElementById('preload-cards');
-cardNameList.forEach((x, i)=> {
-  let img = document.createElement('div');
-  img.className = 'saki-card-img_preload';
-  // img.style.backgroundPoisition = '-9999px -9999px';
-  setCardImg(img, x);
-  preload.insertAdjacentElement('beforeend', img);
-});
+function preloadCards() {
+  const preload = document.getElementById('preload-cards');
+  cardNameList.forEach((x, i)=> {
+    let img = document.createElement('div');
+    img.className = 'saki-card-img_preload';
+    // img.style.backgroundPoisition = '-9999px -9999px';
+    setCardImg(img, x);
+    preload.insertAdjacentElement('beforeend', img);
+  });
+}
 
 
 const newCard = (name, parent) => {
@@ -655,6 +673,8 @@ init = function(sessionid, playerid) {
   ws.onopen = function() {
     console.log('Connected to WSS');
   };
+
+  preloadCards();
 
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
